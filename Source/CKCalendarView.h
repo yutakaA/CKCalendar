@@ -33,8 +33,12 @@ typedef enum {
 
 @interface CKCalendarView : UIView
 
+@property(nonatomic, strong) UIButton *prevButton;
+@property(nonatomic, strong) UIButton *nextButton;
+
 - (id)initWithStartDay:(CKCalendarStartDay)firstDay;
 - (id)initWithStartDay:(CKCalendarStartDay)firstDay frame:(CGRect)frame;
+- (id)initWithStartDay:(CKCalendarStartDay)firstDay frame:(CGRect)frame date:(NSDate *)date;
 
 @property (nonatomic) CKCalendarStartDay calendarStartDay;
 @property (nonatomic, strong) NSLocale *locale;
@@ -52,6 +56,9 @@ typedef enum {
 @property (nonatomic, strong) UIFont *dateOfWeekFont;
 @property (nonatomic, strong) UIColor *dayOfWeekTextColor;
 @property (nonatomic, strong) UIFont *dateFont;
+
+// タイトルの文字列を格納⇒表示で使用するため
+@property (nonatomic, strong) NSString *strTitle;
 
 - (void)setMonthButtonColor:(UIColor *)color;
 - (void)setInnerBorderColor:(UIColor *)color;
