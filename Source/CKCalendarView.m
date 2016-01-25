@@ -77,7 +77,7 @@
 - (void)setDate:(NSDate *)date {
     _date = date;
     if (date) {
-        NSDateComponents *comps = [self.calendar components:NSDayCalendarUnit|NSMonthCalendarUnit fromDate:date];
+        NSDateComponents *comps = [self.calendar components:NSCalendarUnitDay|NSCalendarUnitMonth fromDate:date];
         [self setTitle:[NSString stringWithFormat:@"%ld", (long)comps.day] forState:UIControlStateNormal];
     } else {
         [self setTitle:@"" forState:UIControlStateNormal];
@@ -141,7 +141,7 @@
 
 //- (void)_init:(CKCalendarStartDay)firstDay {
 - (void)_init:(CKCalendarStartDay)firstDay inDate:(NSDate *)date {
-    self.calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    self.calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
     //[self.calendar setLocale:[NSLocale currentLocale]];
     [self.calendar setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"US"]];
 
@@ -340,7 +340,7 @@
     NSDate *endDate = [self _firstDayOfNextMonthContainingDate:self.monthShowing];
     if (!self.onlyShowCurrentMonth) {
         NSDateComponents *comps = [[NSDateComponents alloc] init];
-        [comps setWeek:numberOfWeeksToShow];
+        [comps setWeekOfMonth:numberOfWeeksToShow];
         endDate = [self.calendar dateByAddingComponents:comps toDate:date options:0];
     }
 
@@ -553,10 +553,10 @@
         return;
     }
     // 年月日を取り出し、dateStringを作成
-    NSUInteger flags = NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit;
+    NSUInteger flags = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay;
     // NSGregorianと指定しないといけない。[NSCalendar currentCalendar]だと、２０１２年ではなく２４年となった。
     // 自動的に日本のカレンダーになって平成２４年の２４を返したのだろう。
-    NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
     NSDateComponents *comps = [cal components:flags fromDate:date];
     NSString *dateYMString = [NSString stringWithFormat:@"%ld%02ld", (long)[comps year], (long)[comps month]];
     // 未来日チェック
@@ -636,13 +636,13 @@
 #pragma mark - Calendar helpers
 
 - (NSDate *)_firstDayOfMonthContainingDate:(NSDate *)date {
-    NSDateComponents *comps = [self.calendar components:(NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit) fromDate:date];
+    NSDateComponents *comps = [self.calendar components:(NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay) fromDate:date];
     comps.day = 1;
     return [self.calendar dateFromComponents:comps];
 }
 
 - (NSDate *)_firstDayOfNextMonthContainingDate:(NSDate *)date {
-    NSDateComponents *comps = [self.calendar components:(NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit) fromDate:date];
+    NSDateComponents *comps = [self.calendar components:(NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay) fromDate:date];
     comps.day = 1;
     comps.month = comps.month + 1;
     return [self.calendar dateFromComponents:comps];
@@ -653,8 +653,8 @@
 }
 
 - (NSComparisonResult)_compareByMonth:(NSDate *)date toDate:(NSDate *)otherDate {
-    NSDateComponents *day = [self.calendar components:NSYearCalendarUnit|NSMonthCalendarUnit fromDate:date];
-    NSDateComponents *day2 = [self.calendar components:NSYearCalendarUnit|NSMonthCalendarUnit fromDate:otherDate];
+    NSDateComponents *day = [self.calendar components:NSCalendarUnitYear|NSCalendarUnitMonth fromDate:date];
+    NSDateComponents *day2 = [self.calendar components:NSCalendarUnitYear|NSCalendarUnitMonth fromDate:otherDate];
 
     if (day.year < day2.year) {
         return NSOrderedAscending;
@@ -670,7 +670,7 @@
 }
 
 - (NSInteger)_placeInWeekForDate:(NSDate *)date {
-    NSDateComponents *compsFirstDayInMonth = [self.calendar components:NSWeekdayCalendarUnit fromDate:date];
+    NSDateComponents *compsFirstDayInMonth = [self.calendar components:NSCalendarUnitWeekday fromDate:date];
     return (compsFirstDayInMonth.weekday - 1 - self.calendar.firstWeekday + 8) % 7;
 }
 
@@ -684,8 +684,8 @@
         return NO;
     }
 
-    NSDateComponents *day = [self.calendar components:NSEraCalendarUnit|NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:date1];
-    NSDateComponents *day2 = [self.calendar components:NSEraCalendarUnit|NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:date2];
+    NSDateComponents *day = [self.calendar components:NSCalendarUnitEra|NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay fromDate:date1];
+    NSDateComponents *day2 = [self.calendar components:NSCalendarUnitEra|NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay fromDate:date2];
     return ([day2 day] == [day day] &&
             [day2 month] == [day month] &&
             [day2 year] == [day year] &&
@@ -693,7 +693,7 @@
 }
 
 - (NSInteger)_numberOfWeeksInMonthContainingDate:(NSDate *)date {
-    return [self.calendar rangeOfUnit:NSWeekCalendarUnit inUnit:NSMonthCalendarUnit forDate:date].length;
+    return [self.calendar rangeOfUnit:NSCalendarUnitWeekday inUnit:NSCalendarUnitMonth forDate:date].length;
 }
 
 - (NSDate *)_nextDay:(NSDate *)date {
@@ -709,8 +709,8 @@
 }
 
 - (NSInteger)_numberOfDaysFromDate:(NSDate *)startDate toDate:(NSDate *)endDate {
-    NSInteger startDay = [self.calendar ordinalityOfUnit:NSDayCalendarUnit inUnit:NSEraCalendarUnit forDate:startDate];
-    NSInteger endDay = [self.calendar ordinalityOfUnit:NSDayCalendarUnit inUnit:NSEraCalendarUnit forDate:endDate];
+    NSInteger startDay = [self.calendar ordinalityOfUnit:NSCalendarUnitDay inUnit:NSCalendarUnitEra forDate:startDate];
+    NSInteger endDay = [self.calendar ordinalityOfUnit:NSCalendarUnitDay inUnit:NSCalendarUnitEra forDate:endDate];
     return endDay - startDay;
 }
 
